@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scan QR Code</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #2c3e50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    #reader {
+      width: 300px;
+      margin: 20px auto;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      background: #16a085;
+      display: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .back-link {
+      margin-top: 30px;
+      display: inline-block;
+      color: #00c6ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Scan QR Code to Mark Attendance</h2>
+  <div id="reader"></div>
+  <div id="result"></div>
+  <a href="/" class="back-link">← Back to Dashboard</a>
+
+  <script>
+    function onScanSuccess(decodedText, decodedResult) {
+      fetch('/mark_attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employee_id: decodedText })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const resultBox = document.getElementById("result");
+        resultBox.textContent = data.message;
+        resultBox.style.display = "block";
+      })
+      .catch(err => {
+        alert("Error: " + err);
+      });
+    }
+
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader", { fps: 10, qrbox: 250 }
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
+
+</body>
+</html>
+
